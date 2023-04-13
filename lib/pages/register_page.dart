@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:chat_app/helpers/mostrar_alerta.dart';
+
+import 'package:chat_app/services/auth_service.dart';
 
 import 'package:chat_app/widgets/boton_azul.dart';
 import 'package:chat_app/widgets/custom_input.dart';
@@ -60,6 +65,8 @@ class _FormState extends State<_Form> {
     @override
     Widget build(BuildContext context) {
 
+        final authService = Provider.of<AuthService>(context);
+
         return Container(
             margin: const EdgeInsets.only(top: 40),
             padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -73,10 +80,19 @@ class _FormState extends State<_Form> {
                     CustomInput(icon: Icons.lock_outline, placeholder: 'Contraseña', textController: passwordCtrl, isPassword: true),
 
                     BotonAzul(
-                        text: 'Ingrese',
-                        onPress: () {
+                        text: 'Crear cuenta',
+                        onPress: authService.autenticando ? null : () async {
+                            print(nameCtrl.text);
                             print(emailCtrl.text);
                             print(passwordCtrl.text);
+
+                            final registroOk = await authService.register(nameCtrl.text.trim(), emailCtrl.text.trim(), passwordCtrl.text.trim());
+
+                            if (registroOk == true) {
+                                Navigator.pushReplacementNamed(context, 'usuarios');
+                            } else {
+                                mostrarAlerta(context, 'Registro incorrecto', registroOk);
+                            }
                         },
                     )
 
